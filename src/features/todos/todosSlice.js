@@ -21,7 +21,15 @@ function todosReducer(state = initalState, action){
           },
         ];
     case 'todos/todoToggled':
-      return state.map(todo => (todo.id === action.payload) ? todo : { ...todo, completed: !todo.completed });
+      return state.map(todo => (todo.id === action.payload) ? { ...todo, completed: !todo.completed } : todo );
+    case 'todos/colorSelected':
+      return state.map(todo=>(todo.id === action.payload.todoId)?{ ...todo, color:action.payload.color }:todo);
+    case 'todos/todoDeleted':
+      return state.filter(todo=>todo!==action.payload);
+    case 'todos/allCompleted':
+      return state.map(todo=>({...todo,completed:true}));
+    case 'todos/completedCleared':
+      return state.filter(todo=>!todo.completed);
     default:
       return state;
   }
