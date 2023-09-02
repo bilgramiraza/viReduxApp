@@ -29,15 +29,8 @@ store.dispatch({
   type: 'filters/colorFilterChanged',
   payload: { color: 'red', changeType: 'added' }
 })
-
-// Stop listening to state updates
-unsubscribe()
-
-// Dispatch one more action to see what happens
-
+unsubscribe();
 store.dispatch({ type: 'todos/todoAdded', payload: 'Try creating a store' })
-
-// Omit existing React rendering logic
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
