@@ -30,6 +30,7 @@ const TodoListItem = ( { todo, onColorChange, onCompletedChange, onDelete } ) =>
           </select>
           <button className="destroy" onClick={onDelete}>
             <TimesSolid />
+            <span>test</span>
           </button>
         </div>
       </div>

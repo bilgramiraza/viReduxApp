@@ -3,9 +3,9 @@ import ReactDOM from 'react-dom/client'
 import App from './App.jsx'
 import './index.css'
 
-// import './api/server'
-//
-// import store from './store.js'
+import './api/server'
+
+import store from './store.js'
 
 
 // console.log('Initial state: ', store.getState())
