@@ -6,22 +6,10 @@ const initalState = [
   // { id: 2, text: 'Build Fun Stuff', completed: false, color: 'blue' },
 ];
 
-function nextTodoId(todos) {
-  const maxId = todos.reduce((maxId, todo) => Math.max(todo.id, maxId), -1);
-  return maxId + 1;
-}
-
 function todosReducer(state = initalState, action){
   switch(action.type){
     case 'todos/todoAdded':
-      return [
-          ...state,
-          {
-            id: nextTodoId(state),
-            text: action.payload,
-            completed: false,
-          },
-        ];
+      return [...state,action.payload];
     case 'todos/todoToggled':
       return state.map(todo => (todo.id === action.payload) ? { ...todo, completed: !todo.completed } : todo );
     case 'todos/colorSelected':
@@ -44,4 +32,11 @@ export default todosReducer;
 export async function fetchTodos(dispatch, getState){
   const response = await client.get('/fakeApi/todos');
   dispatch({ type:'todos/todosLoaded', payload:response.todos });
+}
+
+export function saveNewTodo(text){
+  return async (dispatch, getState)=>{
+    const response = await client.post('/fakeApi/todos', { todo: { text } });
+    dispatch({ type:'todos/todoAdded', payload:response.todo });
+  };
 }
