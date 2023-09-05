@@ -1,4 +1,5 @@
 import { applyMiddleware, createStore } from "redux";
+import thunkMiddleware from 'redux-thunk';
 import rootReducer from "./reducer";
 import { composeWithDevTools } from "@redux-devtools/extension";
 // import { print1, print2, print3 } from "./exampleAddons/middleware";
@@ -22,7 +23,7 @@ import { composeWithDevTools } from "@redux-devtools/extension";
 
 // const composedEnhancer = composeWithDevTools(sayHiOnDispatch, includeMeaningOfLife, middlewareEnhancer);
 const composedEnhancer = composeWithDevTools(
-    applyMiddleware(),
+    applyMiddleware(thunkMiddleware),
 );
 
 const store = createStore(rootReducer, composedEnhancer);
