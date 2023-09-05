@@ -1,14 +1,24 @@
 import PropTypes from 'prop-types';
+import { useDispatch, useSelector } from 'react-redux';
 
 import { availableColors, capitalize } from "../filters/colors";
-import TimesSolid from "./TimesSolid"
+import TimesSolid from "./TimesSolid";
 
-const TodoListItem = ( { todo, onColorChange, onCompletedChange, onDelete } ) =>{
+const selectTodoById = (state, todoId) => {
+  return state.todos.find(todo => todo.id === todoId);
+};
+
+const TodoListItem = ( { id } ) =>{
+  const todo = useSelector(state => selectTodoById(state, id));
   const { text, completed, color } = todo;
 
-  const handleCompletedChanged = (e) => onCompletedChange(e.target.value);
+  const dispatch = useDispatch();
 
-  const handleColorChanged = (e) => onColorChange(e.target.value);
+  const handleCompletedChanged = () => dispatch({ type:'todos/todoToggled', payload:todo.id });
+
+  const handleColorChanged = (e) => dispatch({ type:'todos/colorSelected', payload:{ todoId:todo.id, color:e.target.value } });
+
+  const handleTodoDeleted = () => dispatch({ type:'todos/todoDeleted', payload:todo.id });
 
   const colorOptions = availableColors.map((c)=>(
     <option key={c} value={c}>
@@ -28,9 +38,8 @@ const TodoListItem = ( { todo, onColorChange, onCompletedChange, onDelete } ) =>
             <option value=""></option>
             {colorOptions}
           </select>
-          <button className="destroy" onClick={onDelete}>
+          <button className="destroy" onClick={handleTodoDeleted}>
             <TimesSolid />
-            <span>test</span>
           </button>
         </div>
       </div>
@@ -42,8 +51,5 @@ export default TodoListItem;
 
 
 TodoListItem.propTypes = {
-  todo:PropTypes.object.isRequired, 
-  onColorChange:PropTypes.func.isRequired, 
-  onCompletedChange:PropTypes.func.isRequired, 
-  onDelete:PropTypes.func.isRequired,
+  id:PropTypes.number.isRequired,
 };

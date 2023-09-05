@@ -2,6 +2,7 @@ import PropTypes from 'prop-types';
 
 import { StatusFilters } from '../filters/filtersSlice';
 import { availableColors, capitalize } from "../filters/colors";
+import { useDispatch, useSelector } from 'react-redux';
 
 const RemainingTodos = ({ count }) => {
   const suffix = count === 1 ? '' : 's';
@@ -30,7 +31,7 @@ const StatusFilter = ({ value: status, onChange }) => {
   });
 
   return (
-    <div className="filters StatusFilters">
+    <div className="filters statusFilters">
       <h5>Filter by Status</h5>
       <ul>{renderedFilters}</ul>
     </div>
@@ -63,19 +64,24 @@ const ColorFilters = ({ value: colors, onChange }) => {
 };
 
 const Footer = () => {
-  const colors = [];
-  const status = StatusFilters.All;
-  const todosRemaining = 1;
+  const dispatch  = useDispatch();
+  const todosRemaining = useSelector(state =>{
+    return state.todos.filter(todo => !todo.completed).length;
+  });
 
-  const onColorChange = (color, changeType) => console.log('Color Change', { color, changeType });
-  const onStatusChange = (status) => console.log('Status Change', status);
+  const { status, colors } = useSelector(state => state.filters);
+
+  const onColorChange = (color, changeType) => dispatch({ type:'filters/colorFilterChanged', payload:{ color, changeType } });
+  const onStatusChange = (status) => dispatch({ type:'filters/statusFilterChanged', payload:status });
+  const handleAllCompleted = () => dispatch({ type:'todos/allCompleted' }); 
+  const handleDeleteCompleted= () => dispatch({ type:'todos/completedCleared' }); 
 
   return (
     <footer className="footer">
       <div className="actions">
         <h5>Actions</h5>
-        <button className="button">Mark All Completed</button>
-        <button className="button">Clear Completed</button>
+        <button className="button" onClick={ handleAllCompleted }>Mark All Completed</button>
+        <button className="button" onClick={ handleDeleteCompleted }>Clear Completed</button>
       </div>
       <RemainingTodos count={todosRemaining} />
       <StatusFilter value={status} onChange={onStatusChange} />

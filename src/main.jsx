@@ -6,6 +6,7 @@ import './index.css'
 import './api/server'
 
 import store from './store.js'
+import { Provider } from 'react-redux'
 
 
 // console.log('Initial state: ', store.getState())
@@ -34,6 +35,8 @@ import store from './store.js'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <App />
+    <Provider store={store}>
+      <App />
+    </Provider>
   </React.StrictMode>,
 )
