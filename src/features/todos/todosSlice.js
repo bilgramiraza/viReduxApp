@@ -1,4 +1,6 @@
+import { createSelector } from "reselect";
 import { client } from "../../api/client";
+import { StatusFilters } from "../filters/filtersSlice";
 
 const initalState = [
   // { id: 0, text: 'Learn React', completed: true },
@@ -42,3 +44,27 @@ export const saveNewTodo = text =>  async dispatch => {
   const response = await client.post('/fakeApi/todos', { todo: { text } });
   dispatch(todosAdded(response.todo));
 };
+
+export const selectFilteredTodos = createSelector(
+  //inputs
+  state => state.todos,
+  state => state.filters,
+  //output
+  (todos, { status, colors }) => {
+    const showAllCompletions = status === StatusFilters.All;
+    if(showAllCompletions && !(colors.length))  return todos;
+
+    const completedStatus = status === StatusFilters.Completed;
+
+    return todos.filter(todo => {
+      const statusMatches = showAllCompletions || (todo.completed === completedStatus);
+      const colorMatches = colors.length === 0 || colors.includes(todo.color);
+      return statusMatches && colorMatches;
+    });
+  }
+);
+
+export const selectFilteredTodoIds = createSelector(
+  selectFilteredTodos,
+  filteredTodos => filteredTodos.map(todo => todo.id),
+);
