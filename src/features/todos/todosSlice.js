@@ -29,14 +29,16 @@ function todosReducer(state = initalState, action){
 
 export default todosReducer;
 
-export async function fetchTodos(dispatch, getState){
-  const response = await client.get('/fakeApi/todos');
-  dispatch({ type:'todos/todosLoaded', payload:response.todos });
-}
+export const todosLoaded = todos => ({ type:'todos/todosLoaded', payload:todos });
 
-export function saveNewTodo(text){
-  return async (dispatch, getState)=>{
-    const response = await client.post('/fakeApi/todos', { todo: { text } });
-    dispatch({ type:'todos/todoAdded', payload:response.todo });
-  };
-}
+export const todosAdded = todos => ({ type:'todos/todosAdded', payload:todos })
+
+export const fetchTodos = () => async dispatch => {
+  const response = await client.get('/fakeApi/todos');
+  dispatch(todosLoaded(response.todos));
+};
+
+export const saveNewTodo = text =>  async dispatch => {
+  const response = await client.post('/fakeApi/todos', { todo: { text } });
+  dispatch(todosAdded(response.todo));
+};

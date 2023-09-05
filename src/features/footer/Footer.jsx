@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 
-import { StatusFilters } from '../filters/filtersSlice';
+import { StatusFilters, colorFilterChanged } from '../filters/filtersSlice';
 import { availableColors, capitalize } from "../filters/colors";
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -71,7 +71,7 @@ const Footer = () => {
 
   const { status, colors } = useSelector(state => state.filters);
 
-  const onColorChange = (color, changeType) => dispatch({ type:'filters/colorFilterChanged', payload:{ color, changeType } });
+  const onColorChange = (color, changeType) => dispatch(colorFilterChanged(color, changeType));
   const onStatusChange = (status) => dispatch({ type:'filters/statusFilterChanged', payload:status });
   const handleAllCompleted = () => dispatch({ type:'todos/allCompleted' }); 
   const handleDeleteCompleted= () => dispatch({ type:'todos/completedCleared' }); 

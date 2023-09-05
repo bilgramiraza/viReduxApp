@@ -7,7 +7,7 @@ import './api/server'
 
 import store from './store.js'
 import { Provider } from 'react-redux'
-import { fetchTodos } from './features/todos/todosSlice.js'
+import { fetchTodos } from './features/todos/todosSlice'
 
 
 // console.log('Initial state: ', store.getState())
@@ -34,7 +34,7 @@ import { fetchTodos } from './features/todos/todosSlice.js'
 // unsubscribe();
 // store.dispatch({ type: 'todos/todoAdded', payload: 'Try creating a store' })
 //
-store.dispatch(fetchTodos);
+store.dispatch(fetchTodos());
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
