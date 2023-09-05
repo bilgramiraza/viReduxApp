@@ -32,6 +32,8 @@ function todosReducer(state = initalState, action){
       return state.map(todo=>({...todo,completed:true}));
     case 'todos/completedCleared':
       return state.filter(todo=>!todo.completed);
+    case 'todos/todosLoaded': 
+      return action.payload;
     default:
       return state;
   }
