@@ -39,7 +39,7 @@ function todosReducer(state = initalState, action){
       return { 
         ...state,
         entities : { 
-          ...state, 
+          ...state.entities, 
           [todo.id] : todo,
         },
       };
@@ -115,7 +115,7 @@ export const todosLoading = () => ({ type:'todos/todosLoading' });
 
 export const todosLoaded = todos => ({ type:'todos/todosLoaded', payload:todos });
 
-export const todosAdded = todos => ({ type:'todos/todosAdded', payload:todos })
+export const todosAdded = todos => ({ type:'todos/todoAdded', payload:todos })
 
 export const todoToggled = todoId => ({ type:'todos/todoToggled', payload:todoId })
 
