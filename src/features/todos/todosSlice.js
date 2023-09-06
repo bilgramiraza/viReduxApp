@@ -4,11 +4,17 @@ import { StatusFilters } from "../filters/filtersSlice";
 
 const initalState = {
   status: 'idle', //idle|loading|success|failed
-  entities:[],
-  // { id: 0, text: 'Learn React', completed: true },
-  // { id: 1, text: 'Learn Redux', completed: false, color: 'purple' },
-  // { id: 2, text: 'Build Fun Stuff', completed: false, color: 'blue' },
+  entities:{},
 };
+//initialState = {
+// status:'idle',
+// entities:
+// {
+//  0:{ id: 0, text: 'Learn React', completed: true },
+//  1:{ id: 1, text: 'Learn Redux', completed: false, color: 'purple' },
+//  2:{ id: 2, text: 'Build Fun Stuff', completed: false, color: 'blue' },
+// }
+//};
 
 function todosReducer(state = initalState, action){
   switch(action.type){
@@ -17,42 +23,86 @@ function todosReducer(state = initalState, action){
         ...state,
         status: 'loading',
       };
-    case 'todos/todosLoaded': 
+    case 'todos/todosLoaded': {
+      const newEntities = {};
+      action.payload.forEach(todo => {
+        newEntities[todo.id] = todo 
+      });
       return {
         ...state,
         status: 'idle',
-        entities : action.payload,
+        entities : newEntities,
       };
-    case 'todos/todoAdded':
+    }
+    case 'todos/todoAdded':{
+      const todo = action.payload;
       return { 
         ...state,
-        entities : [...state,action.payload],
+        entities : { 
+          ...state, 
+          [todo.id] : todo,
+        },
       };
-    case 'todos/todoToggled':
+    }
+    case 'todos/todoToggled':{
+      const todoId = action.payload;
+      const todo = state.entities[todoId];
       return {
         ...state,
-        entities : state.entities.map(todo => (todo.id === action.payload) ? { ...todo, completed: !todo.completed } : todo )
+        entities : {
+          ...state.entities,
+          [todoId] : {
+            ...todo,
+            completed : !todo.completed,
+          },
+        },
       };
-    case 'todos/colorSelected':
+    }
+    case 'todos/colorSelected':{
+      const { color, todoId } = action.payload;
+      const todo = state.entities[todoId];
       return {
         ...state,
-        entities : state.entities.map(todo=>(todo.id === action.payload.todoId)?{ ...todo, color:action.payload.color } : todo),
+        entities : {
+          ...state.entities,
+          [todoId] : {
+            ...todo,
+            color,
+          },
+        },
       };
-    case 'todos/todoDeleted':
+    }
+    case 'todos/todoDeleted':{
+      const newEntities = { ...state.entities };
+      delete newEntities[action.payload];
       return {
         ...state,
-        entities : state.entities.filter(todo=>todo.id!==action.payload),
+        entities : newEntities,
       };
-    case 'todos/allCompleted':
+    }
+    case 'todos/allCompleted':{
+      const newEntities = { ...state.entities };
+      Object.values(newEntities).forEach(todo => {
+        newEntities[todo.id] = {
+          ...todo,
+          completed:true,
+        };
+      });
       return {
         ...state,
-        entities : state.entities.map(todo=>({...todo,completed:true})),
+        entities : newEntities,
       };
-    case 'todos/completedCleared':
+    }
+    case 'todos/completedCleared':{
+      const newEntities = { ...state.entities };
+      Object.values(newEntities).forEach(todo => {
+        if(todo.completed)  delete newEntities[todo.id];
+      });
       return {
         ...state,
-        entities : state.entities.filter(todo=>!todo.completed),
+        entities : newEntities,
       };
+    }
     default:
       return state;
   }
@@ -60,6 +110,7 @@ function todosReducer(state = initalState, action){
 
 export default todosReducer;
 
+//Action Creators
 export const todosLoading = () => ({ type:'todos/todosLoading' });
 
 export const todosLoaded = todos => ({ type:'todos/todosLoaded', payload:todos });
@@ -76,10 +127,16 @@ export const todoAllCompleted = () => ({ type:'todos/allCompleted' })
 
 export const todoClearCompleted = () => ({ type:'todos/completedCleared' })
 
-export const selectTodos = state => state.todos.entities;
+//Selectors
+const selectTodoEntities = state => state.todos.entities;
+
+export const selectTodos = createSelector(
+  selectTodoEntities,
+  entities => Object.values(entities)
+);
 
 export const selectTodoById = (state, todoId) => {
-  return selectTodos(state).find(todo => todo.id === todoId);
+  return selectTodoEntities(state)[todoId];
 };
 
 export const selectFilters = state => state.filters;
