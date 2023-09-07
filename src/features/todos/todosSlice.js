@@ -1,4 +1,4 @@
-import { createSelector, createSlice } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSelector, createSlice } from "@reduxjs/toolkit";
 import { client } from "../../api/client";
 import { StatusFilters } from "../filters/filtersSlice";
 
@@ -16,23 +16,27 @@ const initialState = {
 // }
 //};
 //
+
+export const fetchTodos = createAsyncThunk(
+  'todos/fetchTodos', 
+  async () => {
+    const response = await client.get('/fakeApi/todos');
+    return response.todos;
+  }
+);
+
+export const saveNewTodo = createAsyncThunk(
+  'todos/saveNewTodo',
+  async text => {
+    const response = await client.post('/fakeApi/todos', { todo: { text } });
+    return response.todo;
+  },
+);
+
 const todoSlice = createSlice({
   name:'todos',
   initialState,
   reducers:{
-    todosLoading(state){
-      state.status = 'loading';
-    },
-    todosLoaded(state, action){
-      state.status = 'idle';
-      action.payload.forEach(todo => {
-        state.entities[todo.id] = todo;
-      });
-    },
-    todoAdded(state, action){
-      const todo = action.payload;
-      state.entities[todo.id] = todo;
-    },
     todoToggled(state,action){
       const todo = state.entities[action.payload];
       todo.completed = !todo.completed;
@@ -62,14 +66,27 @@ const todoSlice = createSlice({
       });
     } 
   },
+  extraReducers: builder => {
+    builder
+      .addCase(fetchTodos.pending, (state) => {
+        state.status ='loading';
+      })
+      .addCase(fetchTodos.fulfilled, (state, action) => {
+        action.payload.forEach(todo => {
+          state.entities[todo.id] = todo;
+        });
+        state.status ='idle';
+      })
+      .addCase(saveNewTodo.fulfilled, (state, action) => {
+        const todo = action.payload;
+        state.entities[todo.id] = todo;
+      })
+  },
 });
 
 export default todoSlice.reducer;
 
 export const { 
-  todosLoading,
-  todosLoaded,
-  todoAdded, 
   todoToggled, 
   todoColorSelected, 
   todoDeleted,
@@ -90,17 +107,6 @@ export const selectTodoById = (state, todoId) => {
 };
 
 export const selectFilters = state => state.filters;
-
-export const fetchTodos = () => async dispatch => {
-  dispatch(todosLoading());
-  const response = await client.get('/fakeApi/todos');
-  dispatch(todosLoaded(response.todos));
-};
-
-export const saveNewTodo = text =>  async dispatch => {
-  const response = await client.post('/fakeApi/todos', { todo: { text } });
-  dispatch(todoAdded(response.todo));
-};
 
 export const selectFilteredTodos = createSelector(
   //inputs
