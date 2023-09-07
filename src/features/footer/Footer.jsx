@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { StatusFilters, colorFilterChanged, statusFilterChanged } from '../filters/filtersSlice';
 import { availableColors, capitalize } from "../filters/colors";
 import { useDispatch, useSelector } from 'react-redux';
-import { selectTodos, todoAllCompleted, todoClearCompleted } from '../todos/todosSlice';
+import { selectTodos, allTodosCompleted, completedTodosCleared } from '../todos/todosSlice';
 
 const RemainingTodos = ({ count }) => {
   const suffix = count === 1 ? '' : 's';
@@ -74,8 +74,8 @@ const Footer = () => {
 
   const onColorChange = (color, changeType) => dispatch(colorFilterChanged(color, changeType));
   const onStatusChange = status => dispatch(statusFilterChanged(status));
-  const handleAllCompleted = () => dispatch(todoAllCompleted()); 
-  const handleDeleteCompleted= () => dispatch(todoClearCompleted()); 
+  const handleAllCompleted = () => dispatch(allTodosCompleted()); 
+  const handleDeleteCompleted= () => dispatch(completedTodosCleared()); 
 
   return (
     <footer className="footer">
