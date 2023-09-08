@@ -1,13 +1,16 @@
-import { createAsyncThunk, createSelector, createSlice } from "@reduxjs/toolkit";
+import { createAsyncThunk, createEntityAdapter, createSelector, createSlice } from "@reduxjs/toolkit";
 import { client } from "../../api/client";
 import { StatusFilters } from "../filters/filtersSlice";
 
-const initialState = {
-  status: 'idle', //idle|loading|success|failed
-  entities:{},
-};
+const todosAdapter = createEntityAdapter();
+
+const initialState = todosAdapter.getInitialState({
+  status : 'idle' //idle|loading|success|failed
+});
+
 //initialState = {
 // status:'idle',
+// ids:[],
 // entities:
 // {
 //  0:{ id: 0, text: 'Learn React', completed: true },
@@ -52,18 +55,17 @@ const todoSlice = createSlice({
         };
       },
     },
-    todoDeleted(state, action){
-      delete state.entities[action.payload];
-    },
+    todoDeleted:todosAdapter.removeOne,
     allTodosCompleted(state){
       Object.values(state.entities).forEach(todo =>{
         todo.completed = true;
       });
     }, 
     completedTodosCleared(state){
-      Object.values(state.entities).forEach(todo =>{
-        if(todo.completed)  delete state.entities[todo.id];
-      });
+      const completedIds = Object.values(state.entities)
+        .filter(todo=> todo.completed)
+        .map(todo => todo.id);
+      todosAdapter.removeMany(state, completedIds);
     } 
   },
   extraReducers: builder => {
@@ -72,15 +74,10 @@ const todoSlice = createSlice({
         state.status ='loading';
       })
       .addCase(fetchTodos.fulfilled, (state, action) => {
-        action.payload.forEach(todo => {
-          state.entities[todo.id] = todo;
-        });
+        todosAdapter.setAll(state, action.payload);
         state.status ='idle';
       })
-      .addCase(saveNewTodo.fulfilled, (state, action) => {
-        const todo = action.payload;
-        state.entities[todo.id] = todo;
-      })
+      .addCase(saveNewTodo.fulfilled, todosAdapter.addOne);
   },
 });
 
@@ -95,23 +92,18 @@ export const {
 } = todoSlice.actions;
 
 //Selectors
-const selectTodoEntities = state => state.todos.entities;
 
-export const selectTodos = createSelector(
-  selectTodoEntities,
-  entities => Object.values(entities)
+export const { selectAll: selectTodos, selectById: selectTodoById } = todosAdapter.getSelectors(state => state.todos);
+
+export const selectTodoIds = createSelector(
+  selectTodos,
+  todos => todos.map(todo => todo.id)
 );
-
-export const selectTodoById = (state, todoId) => {
-  return selectTodoEntities(state)[todoId];
-};
-
-export const selectFilters = state => state.filters;
 
 export const selectFilteredTodos = createSelector(
   //inputs
   selectTodos,
-  selectFilters,
+  state => state.filters,
   //output
   (todos, { status, colors }) => {
     const showAllCompletions = status === StatusFilters.All;
